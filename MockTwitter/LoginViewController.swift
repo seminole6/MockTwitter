@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import BDBOAuth1Manager
 
 class LoginViewController: UIViewController {
 
@@ -21,6 +22,15 @@ class LoginViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
+    @IBAction func onLoginButton(sender: AnyObject) {
+        
+        TwitterClient.sharedInstance.login({ () -> () in
+            self.performSegueWithIdentifier("loginSegue", sender: nil)
+        }) { (error: NSError) -> () in
+            print("Error: \(error.localizedDescription)")
+        }
+        
+    }
 
     /*
     // MARK: - Navigation
