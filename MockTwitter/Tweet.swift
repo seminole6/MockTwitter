@@ -7,25 +7,34 @@
 //
 
 import UIKit
+import AFNetworking
 
 class Tweet: NSObject {
     
     var text: NSString?
     var timestamp: NSDate?
+    var screenname: NSString?
+    var profileUrl: String?
     var retweetCount: Int = 0
     var favoritesCount: Int = 0
+    var timestampString: String?
     
     init(dictionary: NSDictionary) {
         
         text = dictionary["text"] as? String
+        screenname = dictionary["user"]!["screen_name"] as? String
+        profileUrl = dictionary["user"]!["profile_image_url"] as? String
         
-        let timestampString = dictionary["created_at"] as? String
+        timestampString = dictionary["created_at"] as? String
+        let temp = timestampString?.componentsSeparatedByString(" ")
+        let temp2 = temp![3].componentsSeparatedByString(":")
+        timestampString = "\(temp![0]) \(temp2[0]):\(temp2[1])"
         
-        if let timestampString = timestampString {
+        /*if let timestampString = timestampString {
             let formatter = NSDateFormatter()
-            formatter.dateFormat = "EEE MMM d HH:mm:ss Z y"
+            formatter.dateFormat = "MMM d HH:mm:ss Z y"
             timestamp = formatter.dateFromString(timestampString)
-        }
+        }*/
         
         retweetCount = (dictionary["retweet_count"] as? Int) ?? 0
         favoritesCount = (dictionary["favorites_count"] as? Int) ?? 0
