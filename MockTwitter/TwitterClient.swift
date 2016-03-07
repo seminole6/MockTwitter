@@ -58,12 +58,12 @@ class TwitterClient: BDBOAuth1SessionManager {
             let user = User(dictionary: userDictionary)
             
             success(user)
-            
+            /*
             print("name: \(user.name)")
             print("screenname: \(user.screenname)")
             print("profile url: \(user.profileUrl)")
             print("description: \(user.tagline)")
-            
+            */
             }, failure: { (task: NSURLSessionDataTask?, error: NSError) -> Void in
                 failure(error)
         })
@@ -80,6 +80,60 @@ class TwitterClient: BDBOAuth1SessionManager {
             success(tweets)
             
             }, failure: { (task: NSURLSessionDataTask?, error: NSError) -> Void in
+                failure(error)
+        })
+    }
+    
+    func userTimeLine(screen_name: String, success: ([Tweet]) -> (), failure: (NSError) -> ()) {
+        
+        GET("1.1/statuses/user_timeline.json?screen_name=\(screen_name)", parameters: nil, progress: nil, success: { (task: NSURLSessionDataTask, repsonse: AnyObject?) -> Void in
+            
+            let dictionaries = repsonse as! [NSDictionary]
+            let tweets = Tweet.tweetsWithArray(dictionaries)
+            
+            success(tweets)
+            
+            }, failure:  {(task: NSURLSessionDataTask?, error: NSError) -> Void in
+                failure(error)
+        })
+    }
+    
+    func replyToTweet(reply: String, userId: String, success: ([Tweet]) -> (), failure: (NSError) -> ()) {
+
+        let modreply = reply.stringByAddingPercentEscapesUsingEncoding(NSUTF8StringEncoding)! as String
+        
+        POST("1.1/statuses/update.json?status=\(modreply)&in_reply_to_status_id=\(Int(userId)).json", parameters: nil, progress: nil, success: { (task: NSURLSessionDataTask, repsonse: AnyObject?) -> Void in
+            
+            }, failure:  {(task: NSURLSessionDataTask?, error: NSError) -> Void in
+                failure(error)
+        })
+    }
+    
+    func composeTweet(reply: String, success: ([Tweet]) -> (), failure: (NSError) -> ()) {
+
+        let modreply = reply.stringByAddingPercentEscapesUsingEncoding(NSUTF8StringEncoding)! as String
+        
+        POST("1.1/statuses/update.json?status=\(modreply)", parameters: nil, progress: nil, success: { (task: NSURLSessionDataTask, repsonse: AnyObject?) -> Void in
+            
+            }, failure:  {(task: NSURLSessionDataTask?, error: NSError) -> Void in
+                failure(error)
+        })
+    }
+    
+    func favoriteTweet(userId: String, success: ([Tweet]) -> (), failure: (NSError) -> ()) {
+        
+        POST("1.1/favorites/create.json?id=\(userId)", parameters: nil, progress: nil, success: { (task: NSURLSessionDataTask, repsonse: AnyObject?) -> Void in
+            
+            }, failure:  {(task: NSURLSessionDataTask?, error: NSError) -> Void in
+                failure(error)
+        })
+    }
+    
+    func retweetTweet(userId: String, success: ([Tweet]) -> (), failure: (NSError) -> ()) {
+        
+        POST("1.1/statuses/retweet/\(userId).json", parameters: nil, progress: nil, success: { (task: NSURLSessionDataTask, repsonse: AnyObject?) -> Void in
+            
+            }, failure:  {(task: NSURLSessionDataTask?, error: NSError) -> Void in
                 failure(error)
         })
     }

@@ -1,16 +1,25 @@
 //
-//  TweetsViewController.swift
+//  TimeLineViewController.swift
 //  MockTwitter
 //
-//  Created by Devon Maguire on 2/28/16.
+//  Created by Devon Maguire on 3/6/16.
 //  Copyright © 2016 Devon Maguire. All rights reserved.
 //
 
 import UIKit
 
-class TweetsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class ProfileViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
     @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var backImageView: UIImageView!
+    @IBOutlet weak var profileImageView: UIImageView!
+    @IBOutlet weak var usernameLabel: UILabel!
+    @IBOutlet weak var followCountLabel: UILabel!
+    @IBOutlet weak var followerCountLabel: UILabel!
+    @IBOutlet weak var tweetCountLabel: UILabel!
+    
+    var screenname: String!
+    var tweet: Tweet!
     var tweets: [Tweet]!
 
     override func viewDidLoad() {
@@ -21,13 +30,29 @@ class TweetsViewController: UIViewController, UITableViewDataSource, UITableView
         tableView.rowHeight = UITableViewAutomaticDimension
         tableView.estimatedRowHeight = 120
         
-        // Do any additional setup after loading the view.
-        TwitterClient.sharedInstance.homeTimeLine({ (tweets:[Tweet]) -> () in
+        TwitterClient.sharedInstance.userTimeLine(screenname, success: { (tweets:[Tweet]) -> () in
             self.tweets = tweets
+            
             self.tableView.reloadData()
-        }) { (error: NSError) -> () in
+            
+            }) { (error: NSError) -> () in
                 print("Error: \(error.localizedDescription)")
         }
+        
+        usernameLabel.text = tweet.name! as String
+        
+        let profilePath = tweet.profileUrl
+        if let profilePath = profilePath {
+            profileImageView.setImageWithURL(NSURL(string: profilePath)!)
+        }
+        let backProfilePath = tweet.backUrl
+        if let backProfilePath = backProfilePath {
+            backImageView.setImageWithURL(NSURL(string: backProfilePath)!)
+        }
+        
+        followCountLabel.text = "\(tweet.followCount)"
+        followerCountLabel.text = "\(tweet.followerCount)"
+        tweetCountLabel.text = "\(tweet.tweetCount)"
         
         tableView.reloadData()
     }
@@ -54,39 +79,19 @@ class TweetsViewController: UIViewController, UITableViewDataSource, UITableView
         return cell
     }
     
-    @IBAction func onLogoutButton(sender: AnyObject) {
-        TwitterClient.sharedInstance.logout()
-    }
-    
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
         tableView.reloadRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
     }
-    
+
+    /*
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         // Get the new view controller using segue.destinationViewController.
         // Pass the selected object to the new view controller.
-        if segue.identifier == "DetailSegue" {
-            let cell = sender as! UITableViewCell
-            let indexPath = tableView.indexPathForCell(cell)
-            let tweet = tweets![indexPath!.row]
-        
-            let detailViewController = segue.destinationViewController as! DetailViewController
-            detailViewController.tweet = tweet
-        } else if segue.identifier == "ReplySegue" {
-            let button = sender as! UIButton
-            let view = button.superview! as UIView
-            let cell = view.superview as! UITableViewCell
-            let indexPath = tableView.indexPathForCell(cell)
-            let tweet = tweets![indexPath!.row]
-            
-            let replyViewController = segue.destinationViewController as! ReplyViewController
-            replyViewController.tweet = tweet
-        }
-        
     }
+    */
 
 }
